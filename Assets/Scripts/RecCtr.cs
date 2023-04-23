@@ -8,21 +8,21 @@ public class RecCtr : MonoBehaviour
     public static RecCtr instance;
 
     // Start is called before the first frame update
-    async void Start()
+    void Start()
     {
         instance = this;
-       await IniRec();
+       //await IniRec();
     }
 
     // Update is called once per frame
     async void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKeyDown(KeyCode.P))
         {
             await startRec();
         }
 
-        if (Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.L))
         {
             await SpeechRec.insance.stopRecAndReset();
         }
@@ -50,6 +50,11 @@ public class RecCtr : MonoBehaviour
 
     async Task startRec()
     {
+        SpeechRec.insance.InitNls();
+        await Task.Delay(500);
+        SpeechRec.insance.Createtoken();
+        await Task.Delay(200);
+
         SpeechRec.insance.CreateRecognizer();
         await Task.Delay(200);
         SpeechRec.insance.StartRecognizer();

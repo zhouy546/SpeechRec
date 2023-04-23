@@ -62,7 +62,6 @@ public class SpeechRec : MonoBehaviour
 
     public string debugString;
 
-
     //[SerializeField]
     //private Text tAkId;
 
@@ -91,12 +90,24 @@ public class SpeechRec : MonoBehaviour
     public void Awake()
     {
         insance = this;
+
+        EventCenter.AddListener(EventDefine.ini, ini);
     }
 
     // Start is called before the first frame update
     void Start()
     {
         StartCoroutine(LOOPRec());
+    }
+
+    private void ini()
+    {
+        akId = ValueSheet.jsonBridge.AkId;
+
+        akSecret = ValueSheet.jsonBridge.AkSecret;
+
+        
+
     }
 
     // Update is called once per frame
@@ -107,7 +118,7 @@ public class SpeechRec : MonoBehaviour
         {
             ResultToSend = resultToSend;
             inputField.text = ResultToSend;
-            SendUPDData.instance.udp_Send(inputField.text, "127.0.0.1", 29010);
+            SendUPDData.instance.udp_Send(inputField.text, ValueSheet.jsonBridge.TargetIP, ValueSheet.jsonBridge.TargetPort);
 
         }
     }
@@ -141,6 +152,13 @@ public class SpeechRec : MonoBehaviour
         StopRecognizer();
         await Task.Delay(500);
         ReleaseRecognizer();
+        await Task.Delay(200);
+
+        Releasetoken();
+        await Task.Delay(200);
+
+        DeinitNls();
+        await Task.Delay(100);
 
         StartCoroutine(LOOPRec());
     }
@@ -303,7 +321,7 @@ public class SpeechRec : MonoBehaviour
 
     private void sendData(object sender, WaveInEventArgs e)
     {
-        byte[] buffer = new byte[2048];
+        byte[] buffer = e.Buffer;
         // Copy the captured audio data to the buffer.
         int bytesToCopy = Math.Min(buffer.Length, e.BytesRecorded);
         Buffer.BlockCopy(e.Buffer, 0, buffer, 0, bytesToCopy);
@@ -334,7 +352,7 @@ public class SpeechRec : MonoBehaviour
 
         volume = max;
 
-        if (volume > 0.6)
+        if (volume > 0.2)
         {
             currentTime = 0;
             is_Say_words = true;
