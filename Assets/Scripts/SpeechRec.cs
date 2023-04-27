@@ -41,11 +41,13 @@ public class SpeechRec : MonoBehaviour
     [SerializeField]
     float volume;
     [SerializeField]
-    bool is_Start_Recording = false;
-    [SerializeField]
-    bool is_Say_words = false;
-    [SerializeField]
-    bool is_Send_Data = true;
+    static bool send_audio_flag = true;
+    static bool isini = false;
+
+    //[SerializeField]
+    //bool is_Say_words = false;
+    //[SerializeField]
+    //bool is_Send_Data = true;
 
     [SerializeField]
     private string akId= "LTAI5tDVQCdzY1o3wKvpJZEo";
@@ -61,15 +63,6 @@ public class SpeechRec : MonoBehaviour
 
 
     public string debugString;
-
-    //[SerializeField]
-    //private Text tAkId;
-
-    //[SerializeField]
-    //private Text tAkSecret;
-
-    //[SerializeField]
-    //private Text tToken;
 
     static string cur_st_result;
     static string cur_st_completed;
@@ -87,9 +80,13 @@ public class SpeechRec : MonoBehaviour
 
     static string resultToSend="";
     static string ResultToSend = "";
+
+    public Thread SendThread;
     public void Awake()
     {
         insance = this;
+
+        EventCenter.AddListener(EventDefine.没有说话超时, SayWordsTimeOut);
 
         EventCenter.AddListener(EventDefine.ini, ini);
     }
@@ -97,7 +94,7 @@ public class SpeechRec : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(LOOPRec());
+       // StartCoroutine(LOOPRec());
     }
 
     private void ini()
@@ -106,14 +103,11 @@ public class SpeechRec : MonoBehaviour
 
         akSecret = ValueSheet.jsonBridge.AkSecret;
 
-        
-
     }
 
     // Update is called once per frame
     void Update()
     {
-
         if (ResultToSend!=resultToSend)
         {
             ResultToSend = resultToSend;
@@ -121,51 +115,23 @@ public class SpeechRec : MonoBehaviour
             SendUPDData.instance.udp_Send(inputField.text, ValueSheet.jsonBridge.TargetIP, ValueSheet.jsonBridge.TargetPort);
 
         }
-    }
 
-    IEnumerator LOOPRec()
-    {
-        if (!is_Send_Data)
+
+        if (!send_audio_flag&&running)
         {
-            is_Send_Data = true;
-            StopRecognizer();
-            yield return new WaitForSeconds(0.5f);
+            send_audio_flag = true;
 
-            ReleaseRecognizer();
-            yield return new WaitForSeconds(0.1f);
-
-            CreateRecognizer();
-            yield return new WaitForSeconds(0.1f);
-
-            StartRecognizer();
+            EventCenter.Broadcast(EventDefine.没有说话超时);
         }
-        yield return new WaitForSeconds(0.1f);
-        StartCoroutine(LOOPRec());
     }
 
-    public async Task stopRecAndReset()
-    {
-        StopAllCoroutines();
-
-        is_Send_Data = true;
-        //resetLoop();
-        StopRecognizer();
-        await Task.Delay(500);
-        ReleaseRecognizer();
-        await Task.Delay(200);
-
-        Releasetoken();
-        await Task.Delay(200);
-
-        DeinitNls();
-        await Task.Delay(100);
-
-        StartCoroutine(LOOPRec());
-    }
 
 
     private void OnApplicationQuit()
     {
+
+
+
         StopAllCoroutines();
 
 
@@ -189,6 +155,7 @@ public class SpeechRec : MonoBehaviour
         nlsClient.StartWorkThread(1);
         debugString = "StartWorkThread and init NLS success.";
         Debug.Log(debugString);
+        StartRecord();
 
         running = true;
         /*
@@ -201,9 +168,13 @@ public class SpeechRec : MonoBehaviour
     // release sdk
     public void DeinitNls()
     {
+        running = false;
         nlsClient.ReleaseInstance();
         debugString = "Release NLS success.";
         Debug.Log(debugString);
+
+        WaveInDispose();
+
     }
 
 
@@ -282,17 +253,22 @@ public class SpeechRec : MonoBehaviour
     }
     #endregion
 
-    public byte[] AudioToByte(AudioClip clip)
-    {
-        float[] floatData = new float[clip.samples * clip.channels];
-        clip.GetData(floatData, 0);
-        byte[] outData = new byte[floatData.Length];
 
-        return outData;
+    private void StartRecord()
+    {
+        Debug.Log("开始记录麦克风");
+
+        waveIn.WaveFormat = new WaveFormat(16000, 16, 1);
+
+        waveIn.DataAvailable += OnDataAvailable;
+
+        waveIn.StartRecording();
     }
 
 
     DemoSpeechRecognizerStruct sr_node;
+    [SerializeField]
+    float currentTime = 0;
     /// <summary>
     /// 一句话识别的音频推送线程.
     /// </summary>
@@ -300,47 +276,47 @@ public class SpeechRec : MonoBehaviour
     {
         sr_node = (DemoSpeechRecognizerStruct)request;
 
-        startRecord(sr_node);
+        send_audio_flag = true;
 
-    }
-
-    [SerializeField]
-    float currentTime = 0;
-    [SerializeField]
-    float timeHold = 2;
-    private void startRecord(DemoSpeechRecognizerStruct sr_node)
-    {
-        waveIn.WaveFormat = new WaveFormat(16000, 16, 1);
-
-        waveIn.DataAvailable += OnDataAvailable;
-        waveIn.DataAvailable += sendData;
-        is_Start_Recording = true;
-        is_Send_Data = true;
-        waveIn.StartRecording();
-    }
-
-    private void sendData(object sender, WaveInEventArgs e)
-    {
-        byte[] buffer = e.Buffer;
-        // Copy the captured audio data to the buffer.
-        int bytesToCopy = Math.Min(buffer.Length, e.BytesRecorded);
-        Buffer.BlockCopy(e.Buffer, 0, buffer, 0, bytesToCopy);
-
-        if (is_Send_Data&&volume>0.15f)
+        //EventCenter.Broadcast(EventDefine.开始发送数据);
+        Debug.Log("SRAudioLab Loop");
+        while (true)
         {
-            sr_node.srPtr.SendAudio(sr_node.srPtr, buffer, (UInt64)buffer.Length, EncoderType.ENCODER_PCM);
+            if (ValueSheet.AudioStream.Count > 0)
+            {
+                Debug.Log(ValueSheet.AudioStream.Count);
+
+                Debug.Log("发送数据");
+                 Thread.Sleep(20);
+
+                try
+                {
+                    byte[] buffer = ValueSheet.AudioStream.Dequeue();
+
+                    sr_node.srPtr.SendAudio(sr_node.srPtr, buffer, (UInt64)buffer.Length, EncoderType.ENCODER_PCM);
+                }
+                catch (Exception e)
+                {
+
+                    Debug.LogWarning(e.ToString());
+                }
+
+            }
         }
     }
+
 
 
     private void OnDataAvailable(object sender, WaveInEventArgs args)
     {
         // Calculate the volume of the audio data
         float max = 0;
-        byte[] buffer = args.Buffer;
+        byte[] buffer = args.Buffer; //args.Buffer;
+
 
         int bytesToCopy = Math.Min(buffer.Length, args.BytesRecorded);
         Buffer.BlockCopy(args.Buffer, 0, buffer, 0, bytesToCopy);
+
 
 
         for (int i = 0; i < args.BytesRecorded; i += 2)
@@ -352,47 +328,89 @@ public class SpeechRec : MonoBehaviour
 
         volume = max;
 
-        if (volume > 0.2)
+
+        if (ValueSheet.FirstSayWords)
         {
-            currentTime = 0;
-            is_Say_words = true;
+
+            if (volume >(float)ValueSheet.jsonBridge.volumeThrehold)
+            {
+                currentTime = 0;
+                ValueSheet.FirstSayWords = false;
+                ValueSheet.AudioStream.Enqueue(buffer);
+
+            }
+
         }
         else
         {
-            if (is_Say_words)
+            if (volume > (float)ValueSheet.jsonBridge.volumeThrehold)
             {
+                currentTime = 0;
+                ValueSheet.AudioStream.Enqueue(buffer);
 
+            }
+            else
+            {
                 currentTime += 0.16f;
-                if (currentTime >= timeHold)
+                if (currentTime >= ValueSheet.jsonBridge.TimeThrehold)
                 {
-                    resetLoop();
+                    StopRecognizer();
                 }
             }
         }
     }
 
-    private /*async*/ void resetLoop()
+    private async void SayWordsTimeOut()
     {
-        is_Send_Data = false;
-        is_Say_words = false;
 
         currentTime = 0;
+        ValueSheet.FirstSayWords = true;
+
+        await resetTalk();
+    }
+
+    private async Task resetTalk()
+    {
+
+        StopRecognizer();
+        await Task.Delay(100);
+
+        ReleaseRecognizer();
+
+        await Task.Delay(100);
+
+        CreateRecognizer();
+
+        await Task.Delay(100);
+
+        StartRecognizer();
+    }
+
+    public async Task stopRec()
+    {
+        StopRecognizer();
+        await Task.Delay(100);
+
+        ReleaseRecognizer();
+
+        await Task.Delay(100);
+
+        Releasetoken();
+
+        await Task.Delay(100);
+
+        DeinitNls();
     }
 
 
     public void WaveInDispose()
     {
-        if (is_Start_Recording)
-        {
-            Debug.Log("WaveInDispose run");
-            waveIn.StopRecording();
-            waveIn.Dispose();
-            waveIn.DataAvailable -= OnDataAvailable;
-            waveIn.DataAvailable -= sendData;
-            is_Start_Recording = false;
-        }
 
-
+        Debug.Log("停止记录麦克风");
+        Debug.Log("WaveInDispose run");
+        waveIn.StopRecording();
+        waveIn.Dispose();
+        waveIn.DataAvailable -= OnDataAvailable;
 
     }
 
@@ -400,6 +418,9 @@ public class SpeechRec : MonoBehaviour
     // create recognizer
     public void CreateRecognizer()
     {
+
+
+
         Debug.Log("建立识别");
 
         if (srList == null)
@@ -503,8 +524,8 @@ public class SpeechRec : MonoBehaviour
                             globalRunParams.Remove(sr.uuid);
                             globalRunParams.Add(sr.uuid, demo_params);
 
-                            sr.sr_send_audio = new Thread(new ParameterizedThreadStart(SRAudioLab));
-                            sr.sr_send_audio.Start((object)sr);
+                            SendThread =sr.sr_send_audio = new Thread(new ParameterizedThreadStart(SRAudioLab));
+                            SendThread.Start((object)sr);
                         }
 
                         Debug.Log("Recognizer Start success");
@@ -525,8 +546,9 @@ public class SpeechRec : MonoBehaviour
     // stop recognizer
     public void StopRecognizer()
     {
+
+        SendThread.Abort();
         Debug.Log("停止识别");
-        WaveInDispose();
         int ret = -1;
         if (srList == null)
         {
@@ -624,10 +646,11 @@ public class SpeechRec : MonoBehaviour
               Debug.LogFormat("DemoOnRecognitionStarted msg = {0}", msg);
 
               cur_sr_completed = "msg : " + msg;
+              send_audio_flag = true;
 
-                /*
-                 * 更新状态机send_audio_flag为true，表示请求成功，可以开始传送音频
-                 */
+              /*
+               * 更新状态机send_audio_flag为true，表示请求成功，可以开始传送音频
+               */
               RunParams demo_params = new RunParams();
               demo_params.send_audio_flag = true;
               demo_params.audio_loop_flag = globalRunParams[uuid].audio_loop_flag;
@@ -641,11 +664,13 @@ public class SpeechRec : MonoBehaviour
             string msg = System.Text.Encoding.Default.GetString(e.msg);
             Debug.LogFormat("DemoOnRecognitionClosed = {0}", msg);
             cur_sr_closed = "msg : " + msg;
+            send_audio_flag = false;
 
-                /*
-                 * 这里可更新状态机为false，表示请求完成，可以停止传递音频和推出传递音频的线程
-                 * 此处demo为循环运行，没有做停止此次请求的处理
-                 */
+            /*
+             * 这里可更新状态机为false，表示请求完成，可以停止传递音频和推出传递音频的线程
+             * 此处demo为循环运行，没有做停止此次请求的处理
+             */
+
         };
     private CallbackDelegate DemoOnRecognitionTaskFailed =
         (ref NLS_EVENT_STRUCT e, ref string uuid) =>
@@ -670,6 +695,7 @@ public class SpeechRec : MonoBehaviour
         {
             //Debug.LogFormat("DemoOnRecognitionResultChanged user uuid = {0}", uuid);
             string result = System.Text.Encoding.GetEncoding("gb2312").GetString(e.result);
+           // resultToSend = result;
             Debug.LogFormat("DemoOnRecognitionResultChanged result = {0}", result);
             cur_sr_result = "middle result : " + result;
 

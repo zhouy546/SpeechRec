@@ -10,6 +10,12 @@ public static class ValueSheet
     public static string url;
 
     public static Root jsonBridge;
+
+    public static bool FirstSayWords =true;
+
+    public static Queue<byte[]> AudioStream = new Queue<byte[]>();
+
+    
 }
 public class Root
 {
@@ -28,5 +34,10 @@ public class Root
     /// <summary>
     /// 
     /// </summary>
-    public int TargetPort; 
+    public int TargetPort;
+
+    public double volumeThrehold;
+
+    public double TimeThrehold;
+
 }

@@ -1,4 +1,4 @@
 ﻿public enum EventDefine
 {
-    ini,
+    ini, 没有说话超时,开始发送数据
 }

@@ -24,7 +24,7 @@ public class RecCtr : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.L))
         {
-            await SpeechRec.insance.stopRecAndReset();
+            await SpeechRec.insance.stopRec();
         }
     }
 
@@ -37,7 +37,7 @@ public class RecCtr : MonoBehaviour
 
     public async void STOPREC()
     {
-        await SpeechRec.insance.stopRecAndReset();
+        await SpeechRec.insance.stopRec();
 
     }
 

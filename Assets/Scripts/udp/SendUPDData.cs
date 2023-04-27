@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 /// <summary>
 ///发送UDP字符串udpData_str
@@ -45,16 +46,8 @@ public class SendUPDData : MonoBehaviour {
         if (instance == null)
         {
             instance = this;
-        }    }
+        }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-     
     }
-
- 
-
 
 }

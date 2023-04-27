@@ -189,7 +189,7 @@ MonoBehaviour:
     m_MaxSize: 45
     m_Alignment: 0
     m_AlignByGeometry: 0
-    m_RichText: 0
+    m_RichText: 1
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
@@ -614,16 +614,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   volume: 0
-  is_Start_Recording: 0
-  is_Say_words: 0
-  is_Send_Data: 1
   akId: LTAI5tDVQCdzY1o3wKvpJZEo
   akSecret: 6Z2GTIRfo61tCmbPJYixALZggVd12H
   token: 
   inputField: {fileID: 1433158751}
   debugString: 
   currentTime: 0
-  timeHold: 2
 --- !u!114 &1435140768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -756,7 +752,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Enter text...
+  m_Text: 
 --- !u!222 &2092165276
 CanvasRenderer:
   m_ObjectHideFlags: 0
