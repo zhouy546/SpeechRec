@@ -3,6 +3,6 @@
     "AkSecret":"6Z2GTIRfo61tCmbPJYixALZggVd12H",
     "TargetIP":"192.168.20.225",
     "TargetPort": 29010,
-    "volumeThrehold": 0.3,
+    "volumeThrehold": 0.05,
     "TimeThrehold":2.0
 }

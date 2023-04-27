@@ -28,6 +28,9 @@ public class SpeechRec : MonoBehaviour
 
     public static SpeechRec insance;
 
+    public Text volumeThreholdText;
+    public Text CurrentVolumeText;
+
     private NlsClient nlsClient = new NlsClient();
 
     private LinkedList<DemoSpeechRecognizerStruct> srList = null;
@@ -103,6 +106,8 @@ public class SpeechRec : MonoBehaviour
 
         akSecret = ValueSheet.jsonBridge.AkSecret;
 
+        volumeThreholdText.text ="当前声音阈值："+ ValueSheet.jsonBridge.volumeThrehold.ToString(); ;
+
     }
 
     // Update is called once per frame
@@ -123,6 +128,9 @@ public class SpeechRec : MonoBehaviour
 
             EventCenter.Broadcast(EventDefine.没有说话超时);
         }
+
+        CurrentVolumeText.text = "当前声音大小：" + volume.ToString();
+
     }
 
 
