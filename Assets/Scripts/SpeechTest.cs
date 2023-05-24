@@ -470,22 +470,22 @@ namespace test
                     DemoSpeechRecognizerStruct sr = srStruct.Value;
                     if (sr.srPtr.native_request != IntPtr.Zero)
                     {
-                        if (ValueSheet.appKey == null || ValueSheet.appKey.Length == 0)
+                        if (ValueSheet.jsonBridge.AppKey == null || ValueSheet.jsonBridge.AppKey.Length == 0)
                         {
-                            ValueSheet.appKey = "KdhnnlXtjtz8eBYm";
+                            ValueSheet.jsonBridge.AppKey = "qrKYAlt8R80O4N5c";
                         }
                         if (token == null || token.Length == 0)
                         {
                             token = tToken.text;
                         }
-                        if (ValueSheet.appKey == null || token == null ||
-                            ValueSheet.appKey.Length == 0 || token.Length == 0)
+                        if (ValueSheet.jsonBridge.AppKey == null || token == null ||
+                            ValueSheet.jsonBridge.AppKey.Length == 0 || token.Length == 0)
                         {
                             nlsResult.text = "Start failed, token or appkey is empty";
                             return;
                         }
 
-                        sr.srPtr.SetAppKey(sr.srPtr, ValueSheet.appKey);
+                        sr.srPtr.SetAppKey(sr.srPtr, ValueSheet.jsonBridge.AppKey);
                         sr.srPtr.SetToken(sr.srPtr, token);
                         sr.srPtr.SetUrl(sr.srPtr, "wss://nls-gateway-cn-shanghai.aliyuncs.com/ws/v1");
                         sr.srPtr.SetFormat(sr.srPtr, "pcm");

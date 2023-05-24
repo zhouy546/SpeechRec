@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public static class ValueSheet
 {
 
-    public static string appKey = "KdhnnlXtjtz8eBYm";
+  //  public static string appKey = "qrKYAlt8R80O4N5c";
 
     public static string url;
 
@@ -19,6 +19,8 @@ public static class ValueSheet
 }
 public class Root
 {
+
+    public string AppKey;
     /// <summary>
     /// 
     /// </summary>
