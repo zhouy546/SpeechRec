@@ -176,14 +176,16 @@ public class SpeechRec : MonoBehaviour
     // release sdk
     public void DeinitNls()
     {
-        //SendThread.Abort();
+
+        if (SendThread != null)
+        {
+            SendThread.Abort();
+        }
 
         running = false;
         nlsClient.ReleaseInstance();
         debugString = "Release NLS success.";
         Debug.Log(debugString);
-
-        WaveInDispose();
 
     }
 
@@ -398,6 +400,8 @@ public class SpeechRec : MonoBehaviour
 
     public async Task stopRec()
     {
+        WaveInDispose();
+
         StopRecognizer();
         await Task.Delay(500);
 

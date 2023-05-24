@@ -10,7 +10,6 @@ public class FetchJson : MonoBehaviour
     {
 
         string path = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
-        Debug.Log(path);
 
         string spath = path + "/.Aliyun/SpeechRecConfig.json";
         FileInfo info = new FileInfo(spath);
