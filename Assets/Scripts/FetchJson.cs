@@ -8,7 +8,11 @@ public class FetchJson : MonoBehaviour
 {
     private IEnumerator GetJsonData()
     {
-        string spath = Application.streamingAssetsPath + "/information.json";
+
+        string path = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
+        Debug.Log(path);
+
+        string spath = path + "/.Aliyun/SpeechRecConfig.json";
         FileInfo info = new FileInfo(spath);
         if (!info.Exists)
         {

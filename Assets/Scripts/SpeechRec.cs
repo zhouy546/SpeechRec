@@ -176,6 +176,8 @@ public class SpeechRec : MonoBehaviour
     // release sdk
     public void DeinitNls()
     {
+        //SendThread.Abort();
+
         running = false;
         nlsClient.ReleaseInstance();
         debugString = "Release NLS success.";
@@ -397,15 +399,15 @@ public class SpeechRec : MonoBehaviour
     public async Task stopRec()
     {
         StopRecognizer();
-        await Task.Delay(100);
+        await Task.Delay(500);
 
         ReleaseRecognizer();
 
-        await Task.Delay(100);
+        await Task.Delay(500);
 
         Releasetoken();
 
-        await Task.Delay(100);
+        await Task.Delay(500);
 
         DeinitNls();
     }
