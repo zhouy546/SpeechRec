@@ -11,7 +11,7 @@ public class FetchJson : MonoBehaviour
 
         string path = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
 
-        string spath = path + "/.Aliyun/SpeechRecConfig.json";
+        string spath = path + "/.Aliyun/SpeechSynthesizer.json";
         FileInfo info = new FileInfo(spath);
         if (!info.Exists)
         {

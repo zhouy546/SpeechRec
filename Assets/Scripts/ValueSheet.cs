@@ -15,28 +15,31 @@ public static class ValueSheet
 
     public static Queue<byte[]> AudioStream = new Queue<byte[]>();
 
+
+    public static bool isFirstSynthesizer = true;
+
+    public static bool IsSynthesizerRunning = false;
+
+    public static Queue<string> TextsToSynthesizer = new Queue<string>();
+
     
 }
 public class Root
 {
 
     public string AppKey;
-    /// <summary>
-    /// 
-    /// </summary>
+
     public string AkId;
-    /// <summary>
-    /// 
-    /// </summary>
+
     public string AkSecret;
-    /// <summary>
-    /// 
-    /// </summary>
+
     public string TargetIP;
-    /// <summary>
-    /// 
-    /// </summary>
+
     public int TargetPort;
+
+    public string WavTargetIP;
+
+    public int WavTargetPort;
 
     public double volumeThrehold;
 

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
-
+using speechRec;
 public class RecCtr : MonoBehaviour
 {
     public static RecCtr instance;
@@ -11,7 +11,9 @@ public class RecCtr : MonoBehaviour
     void Start()
     {
         instance = this;
-       //await IniRec();
+        //await IniRec();
+
+        EventCenter.AddListener(EventDefine.ini, STARTREC);
     }
 
     // Update is called once per frame
@@ -27,6 +29,8 @@ public class RecCtr : MonoBehaviour
             await SpeechRec.insance.stopRec();
         }
     }
+
+    
 
 
     public async void STARTREC() {

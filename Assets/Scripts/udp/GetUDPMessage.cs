@@ -19,7 +19,7 @@ public class GetUDPMessage: MonoBehaviour
 {
 
     [Tooltip("消息处理类")] public DealWithUDPMessage m_messageManage;
-    [Tooltip("接受端口号")] public static int m_ReceivePort = 29011;
+    [Tooltip("接受端口号")] public static int m_ReceivePort = 29010;
 
     private Socket m_newsock;//定义一个socket变量
     public static IPEndPoint m_ip;//定义一个IP地址和端口号
@@ -84,7 +84,7 @@ public class GetUDPMessage: MonoBehaviour
         {
             m_data = new byte[1024];//实例化data
             m_recv = m_newsock.ReceiveFrom(m_data, ref Remote);//将数据包接收到的数据放入缓存点，并存储终节点
-            m_mydata = Encoding.UTF8.GetString(m_data, 0, m_recv);
+            m_mydata = System.Text.Encoding.GetEncoding("gb2312").GetString(m_data, 0, m_recv);
             m_array_data.Add(m_mydata);//加入数组            
         }
     }

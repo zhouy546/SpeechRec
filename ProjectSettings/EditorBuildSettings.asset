@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SpeechRec.unity
+    path: Assets/Scenes/SpeechSynthesizer.unity
     guid: 1c54a09e33e3f094a900198d29c23267
   m_configObjects: {}

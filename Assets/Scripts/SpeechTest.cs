@@ -472,7 +472,7 @@ namespace test
                     {
                         if (ValueSheet.jsonBridge.AppKey == null || ValueSheet.jsonBridge.AppKey.Length == 0)
                         {
-                            ValueSheet.jsonBridge.AppKey = "qrKYAlt8R80O4N5c";
+                            ValueSheet.jsonBridge.AppKey = "UH4K57Nmc9XN073f";
                         }
                         if (token == null || token.Length == 0)
                         {

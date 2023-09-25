@@ -36,15 +36,9 @@ public class DealWithUDPMessage : MonoBehaviour {
             dataTest = _data;
 
             Debug.Log(dataTest);
-     
 
-            if(dataTest == "start")
-            {
-                RecCtr.instance.STARTREC();
-            }else if (dataTest == "stop")
-            {
-                RecCtr.instance.STOPREC();
-            }
+            ValueSheet.TextsToSynthesizer.Enqueue(dataTest);
+
         }
        
     }
